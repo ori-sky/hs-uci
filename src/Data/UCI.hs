@@ -2,8 +2,6 @@
 
 module Data.UCI where
 
-import Prelude hiding (Read, Show, read, show)
-
 data MessageIn = UCI
                | Debug (Maybe Bool)
                | IsReady
@@ -11,36 +9,38 @@ data MessageIn = UCI
                | Position (Maybe String) [String]
                | Go
                | Quit
+                 deriving Show
 
 data MessageOut = ID String String
                 | OK
                 | ReadyOK
                 | BestMove String (Maybe String)
                 | Info String
+                  deriving Show
 
-class Read a where read :: a -> [MessageIn]
-class Show a where show :: MessageOut -> [a]
+class ReadIn a  where readIn  :: a -> [MessageIn]
+class ShowOut a where showOut :: MessageOut -> [a]
 
-instance Read [String] where
-    read ["uci"]                                            = [UCI]
-    read ["debug"]                                          = [Debug  Nothing]
-    read ["debug", "on"]                                    = [Debug (Just True)]
-    read ["debug", "off"]                                   = [Debug (Just False)]
-    read ["isready"]                                        = [IsReady]
-    read ["ucinewgame"]                                     = [NewGame]
-    read ("position":"fen":placement:_:_:_:_:_ :"moves":ws) = [Position undefined ws]
-    read ("position":"startpos"                :"moves":ws) = [Position undefined ws]
-    read ("position"                           :"moves":ws) = [Position undefined ws]
-    read ("go":_)                                           = [Go]
-    read ws                                                 = []
+instance ReadIn [String] where
+    readIn ["uci"]                                            = [UCI]
+    readIn ["debug"]                                          = [Debug  Nothing]
+    readIn ["debug", "on"]                                    = [Debug (Just True)]
+    readIn ["debug", "off"]                                   = [Debug (Just False)]
+    readIn ["isready"]                                        = [IsReady]
+    readIn ["ucinewgame"]                                     = [NewGame]
+    readIn ("position":"fen":placement:_:_:_:_:_ :"moves":ws) = [Position undefined ws]
+    readIn ("position":"startpos"                :"moves":ws) = [Position undefined ws]
+    readIn ("position"                           :"moves":ws) = [Position undefined ws]
+    readIn ("go":_)                                           = [Go]
+    readIn ws                                                 = []
 
-instance Show [String] where
-    show (ID name author)        = [["id", "name", name], ["id", "author", author]]
-    show  OK                     = [["uciok"]]
-    show  ReadyOK                = [["readyok"]]
-    show (BestMove m1 Nothing)   = [["bestmove", m1]]
-    show (BestMove m1 (Just m2)) = [["bestmove", m1, "ponder", m2]]
-    show (Info xs)               = [["info", "string", xs]]
+instance ShowOut [String] where
+    showOut (ID name author)        = [["id", "name", name], ["id", "author", author]]
+    showOut  OK                     = [["uciok"]]
+    showOut  ReadyOK                = [["readyok"]]
+    showOut (BestMove m1 Nothing)   = [["bestmove", m1]]
+    showOut (BestMove m1 (Just m2)) = [["bestmove", m1, "ponder", m2]]
+    showOut (Info xs)               = [["info", "string", xs]]
 
-instance Read String where read = read . words
-instance Show String where show m = [unwords (show m)]
+instance ReadIn String where readIn = readIn . words
+instance ShowOut String where showOut m = [unwords (showOut m)]
