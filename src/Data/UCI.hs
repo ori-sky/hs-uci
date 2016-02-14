@@ -11,7 +11,6 @@ data MessageIn = UCI
                | Position (Maybe String) [String]
                | Go
                | Quit
-               | Unknown [String]
 
 data MessageOut = ID String String
                 | OK
@@ -33,7 +32,7 @@ instance Read [String] where
     read ("position":"startpos"                :"moves":ws) = [Position undefined ws]
     read ("position"                           :"moves":ws) = [Position undefined ws]
     read ("go":_)                                           = [Go]
-    read ws                                                 = [Unknown ws]
+    read ws                                                 = []
 
 instance Show [String] where
     show (ID name author)        = [["id", "name", name], ["id", "author", author]]
