@@ -43,4 +43,4 @@ instance ShowOut [String] where
     showOut (Info xs)               = [["info", "string", xs]]
 
 instance ReadIn String where readIn = readIn . words
-instance ShowOut String where showOut m = [unwords (showOut m)]
+instance ShowOut String where showOut m = map unwords (showOut m)
